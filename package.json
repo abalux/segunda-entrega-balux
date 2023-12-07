@@ -1,0 +1,25 @@
+{
+  "type": "module",
+  "name": "segunda-entrega-balux",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abalux/segunda-entrega-balux.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/abalux/segunda-entrega-balux/issues"
+  },
+  "homepage": "https://github.com/abalux/segunda-entrega-balux#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-handlebars": "^7.1.2",
+    "mongoose": "^8.0.2"
+  }
+}
