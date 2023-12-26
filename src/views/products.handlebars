@@ -10,12 +10,19 @@
     <ul>
         {{#each products}}
         <li>
-            <p>Título: {{this.title}}</p>
-            <p>Descripción: {{this.description}}</p>
-            <p>Precio: {{this.price}}</p>
+            <p>Títle: {{this.Title}}</p>
+            <p>Descripción: {{this.Description}}</p>
+            <p>Precio: {{this.Price}}</p>
+            <p>Stock: {{this.Stock}}</p>
             <p>id: {{this._id}}</p>
             <button data-product-id="{{this._id}}">Agregar al carrito</button>
         </li>
         {{/each}}
     </ul>
+    {{#if hasPrevPage}}
+        <a href="{{prevLink}}"><button>Anterior</button></a>
+    {{/if}}
+    {{#if hasNextPage}}
+        <a href="{{nextLink}}"><button>Siguiente</button></a>
+    {{/if}}
 </div>

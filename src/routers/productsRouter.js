@@ -1,58 +1,60 @@
 import { Router, json } from 'express'
 import { ProductManagerDB } from '../services/productManagerDB.js'
+import { dbProducts } from '../models/products.mongoose.js'
 
 export const productsRouter = Router()
 
 productsRouter.use(json())
 
-/*productsRouter.get('/products', async (req, res) => {
-    try {
-        res.json(await ProductManagerDB.findAll())
-    } catch (error) {
-        res.status(500).json({
-        status: 'error',
-        message: error.message
-        })
-    }
-}) */
 
 //aca se pone la vista
 productsRouter.get('/products', async (req, res) => {
     try {
         const { limit = 10, page = 1, sort, query } = req.query;
-        const skip = (page - 1) * limit;
+        const pageNumber = parseInt(page, 10);
+        const skip = (pageNumber - 1) * limit;
 
         let filter = {};
         if (query) {
-        filter = { $or: [{ category: query }, { availability: query }] };
+        filter = { $or: [{ Category: query }, { Availability: query }] };
         }
 
-        const totalProducts = await products.countDocuments(filter);
+        const totalProducts = await dbProducts.countDocuments(filter).lean();
         const totalPages = Math.ceil(totalProducts / limit);
 
         let sortOptions = {};
         if (sort) {
-        sortOptions = { price: sort === 'asc' ? 1 : -1 };
+        sortOptions = { Price: sort === 'asc' ? 1 : -1 };
         }
 
-        const products = await products.find(filter)
+        const products = await dbProducts.find(filter)
             .sort(sortOptions)
             .skip(skip)
             .limit(parseInt(limit))
+            .lean()
             .exec();
 
-        const hasPrevPage = page > 1;
-        const hasNextPage = page < totalPages;
-        const prevLink = hasPrevPage ? `/products?page=${page - 1}&limit=${limit}&sort=${sort}&query=${query}` : null;
-        const nextLink = hasNextPage ? `/products?page=${page + 1}&limit=${limit}&sort=${sort}&query=${query}` : null;
-
+        const hasPrevPage = pageNumber > 1;
+        const hasNextPage = pageNumber < totalPages;
+        const prevLink = hasPrevPage ? `/products?page=${pageNumber - 1}&limit=${limit}&sort=${sort}${query ? `&query=${query}` : ''}` : null;
+        const nextLink = hasNextPage ? `/products?page=${pageNumber + 1}&limit=${limit}&sort=${sort}${query ? `&query=${query}` : ''}` : null;
+        
+        console.log('Filter:', filter);
+        console.log('Sort Options:', sortOptions);
+        console.log('Total Pages:', totalPages);
+        console.log('Page:', pageNumber);
+        console.log('Has Prev Page:', hasPrevPage);
+        console.log('Has Next Page:', hasNextPage);
+        console.log('Prev Link:', prevLink);
+        console.log('Next Link:', nextLink);
+        
         res.render('products', {
             status: 'success',
-            payload: products,
+            products: products,
             totalPages,
-            prevPage: page - 1,
-            nextPage: page + 1,
-            page: page,
+            prevPage: pageNumber - 1,
+            nextPage: pageNumber + 1,
+            page: pageNumber,
             hasPrevPage,
             hasNextPage,
             prevLink,

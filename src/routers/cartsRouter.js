@@ -2,9 +2,10 @@ import { Router } from "express";
 import { CartManagerDB } from "../services/cartsManager.js";
 
 export const cartsRouter = Router();
+const cartManager = new CartManagerDB();
 
 cartsRouter.post('/', async (req, res) => {
-    const createdCart = await CartManagerDB.createCart();
+    const createdCart = await cartManager.createCart()
     if (createdCart){
         res.json({Created: createdCart})
     }else{
@@ -14,8 +15,8 @@ cartsRouter.post('/', async (req, res) => {
 
 //aca se pone la vista 
 cartsRouter.get('/:cid', async (req, res) => {
-    const cartId = parseInt(req.params['cid']);
-    const cartFound = await CartManagerDB.getCartById(cartId).populate('productos');
+    const cartId = req.params['cid'] /*le acabas de sacar el parseInt*/
+    const cartFound = await cartManager.getCartById(cartId)/*.populate('productos')*/;
     if (cartFound){
         res.render('carts', {cartFound})
     }else{
@@ -24,9 +25,9 @@ cartsRouter.get('/:cid', async (req, res) => {
 })
 
 cartsRouter.post('/:cid/products/:pid', async (req, res) =>{
-    const productId = parseInt(req.params['pid']);
-    const cartId = parseInt(req.params['cid']);
-    const addedProductsInCart = await CartManagerDB.addProductsInCart(productId, cartId);
+    const productId = req.params['pid'];
+    const cartId = req.params['cid'];
+    const addedProductsInCart = await cartManager.addProductsInCart(productId, cartId);
     if (addedProductsInCart){
         res.json({Cart : addedProductsInCart})
     }else{
@@ -35,9 +36,10 @@ cartsRouter.post('/:cid/products/:pid', async (req, res) =>{
 })
 
 cartsRouter.delete('/:cid/products/:pid ', async (req,res) => {
-    const productId = parseInt(req.params['pid']);
-    const cartId = parseInt(req.params['cid']);
-    const deletedProductInCart = await CartManagerDB.deleteProductInCart(productId, cartId);
+    const productId = req.params['pid'];
+    const cartId = req.params['cid'];
+    console.log(cartId)
+    const deletedProductInCart = await cartManager.deleteProductInCart(productId, cartId);
     if (deletedProductInCart){
         res.json({Cart : deletedProductInCart})
     }else{
@@ -45,9 +47,10 @@ cartsRouter.delete('/:cid/products/:pid ', async (req,res) => {
     }
 })
 
-cartsRouter.delete('/:cid ', async (req,res) => {
-    const cartId = parseInt(req.params['cid']);
-    const deletedProductsInCart = await CartManagerDB.deleteAllProductsInCart(cartId);
+cartsRouter.delete('/:cid', async (req,res) => {
+    const cartId = req.params['cid'];
+    console.log(cartId)
+    const deletedProductsInCart = await cartManager.deleteAllProductsInCart(cartId);
     if (deletedProductsInCart){
         res.json({Cart : deletedProductsInCart})
     }else{
@@ -56,9 +59,10 @@ cartsRouter.delete('/:cid ', async (req,res) => {
 })
 
 cartsRouter.put('/:cid/products/:pid ', async (req,res) => {
-    const productId = parseInt(req.params['pid']);
-    const cartId = parseInt(req.params['cid']);
-    const updatedProductQuantity = await CartManagerDB.updateProductQuantity(productId, cartId, newQuantity);
+    const productId = req.params['pid'];
+    const cartId = req.params['cid'];
+    const { quantity } = req.body;
+    const updatedProductQuantity = await cartManager.updateProductQuantity(productId, cartId, quantity);
     if (updatedProductQuantity){
         res.json({Cart: updatedProductQuantity})
     }else{ 

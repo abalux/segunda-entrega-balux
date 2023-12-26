@@ -1,15 +1,15 @@
-import { dbCarts } from "../models/carts.mongoose.js";
-import { randomUUID } from 'crypto'
+import { dbCarts } from '../models/carts.mongoose.js';
+import mongoose from 'mongoose'
 
 export class CartManagerDB {
+
     async createCart(){
-        const cartId = randomUUID();
-        const cart = await dbCarts.create({ _id: cartId });
-        return cart.toObject();
+        const newCart = await dbCarts.create({});
+        return newCart;
     }
 
     async getCartById(cartId){
-        const cartFound = await dbProducts.findById(cartId).lean()
+        const cartFound = await dbCarts.findById(cartId).populate('products').lean()
         if (!cartFound) {
             throw new Error('id not found')
         }
@@ -43,24 +43,33 @@ export class CartManagerDB {
         }
     }
 
-    async deleteProductInCart(productId, cartId){
-        try{
-            const cart = await dbCarts.findByIdAndUpdate( cartId, { $pull: { 'Products': { product: productId } } }, { new: true })
-            if (cart) {
-                return cart
-            }else{
-                throw new Error("cart not found")
-            }
-        } catch (error) {
-            console.error('Error al eliminar el producto del carrito:', error);
-            throw new Error('Error interno del servidor al eliminar el producto del carrito');
-        }
+    async deleteProductInCart(productId,cartId) {
+                try {
+                    const cart = await dbCarts.findById(cartId);
+                    console.log(cartId)
+                    if (cart) {
+                        await dbCarts.updateOne(
+                            { _id: cartId },
+                            { $pull : { 'Products': productId } }
+                        );
+                        return "product successfully deleted";
+                    } else {
+                        throw new Error("cart not found");
+                    }
+                } catch (error) {
+                    console.error('Error al eliminar el producto del carrito:', error);
+                    throw new Error('Error interno del servidor al eliminar el producto del carrito');
+                }
     }
-
+    
+    
+    
     async deleteAllProductsInCart(cartId){
+        const { ObjectId } = mongoose.Types;
+        console.log(cartId)
         try {
-            const cart = await dbCarts.updateOne({ _id: cartId },{ $set: { Products: [] } });
-            if (cart.nModified > 0) {
+            const cart = await dbCarts.updateOne({ _id: new ObjectId(cartId) },{ $set: { Products: [] } });
+            if (cart.n > 0) {
                 return "products successfully deleted";
             } else {
                 throw new Error("cart not found");
@@ -71,19 +80,23 @@ export class CartManagerDB {
         }
     }
 
-    async updateProductQuantity(productId, cartId, newQuantity){
-        try {
-            const cart = await dbCarts.updateOne({ _id: cartId, 'Products.product': productId },{ $set: { 'Products.$.quantity': newQuantity } });
-            if (cart.nModified > 0) {
-                return "product quantity successfully updated";
-            } else {
-                throw new Error("cart not found or product not in cart");
-            }
-        } catch (error) {
-            console.error('Error al actualizar la cantidad del producto en el carrito:', error);
-            throw new Error('Error interno del servidor al actualizar la cantidad del producto en el carrito');
+    async updateProductQuantity(productId, cartId, quantity){
+
+    try {
+        const cart = await dbCarts.findById(cartId);
+        if (!cart) {
+            return res.status(404).json({ error: 'Carrito no encontrado' });
         }
+        const productIndex = cart.Products.findIndex(product => product._id.toString() === productId);
+        if (productIndex === -1) {
+            return res.status(404).json({ error: 'Producto no encontrado en el carrito' });
+        }
+        cart.Products[productIndex].quantity = quantity;
+        const updatedCart = await cart.save();
+        res.json(updatedCart);
+    } catch (error) {
+        console.error('Error al actualizar la cantidad del producto en el carrito:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
     }
-//acordate que tenes que fijarte lo dep products y lo de id etc etc sino no te lo va a tomar
-   
+    }
 }

@@ -2,7 +2,7 @@ import { Schema, model } from 'mongoose'
 import mongoose from 'mongoose'
 
 const cartSchema = new Schema({
-    _id: { type: String, required: true },
+    _id: {  type: mongoose.Schema.Types.ObjectId  /*, default: new mongoose.Types.ObjectId , required: true*/},
     Products : [
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -11,4 +11,4 @@ const cartSchema = new Schema({
     ]
 })
 
-export const dbCarts = model('carts', cartSchema)
+export const dbCarts = model('carts', cartSchema) 
