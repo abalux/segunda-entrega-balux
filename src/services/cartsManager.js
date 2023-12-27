@@ -9,7 +9,7 @@ export class CartManagerDB {
     }
 
     async getCartById(cartId){
-        const cartFound = await dbCarts.findById(cartId).populate('products').lean()
+        const cartFound = await dbCarts.findById(cartId)/*.populate('products')*/.lean()
         if (!cartFound) {
             throw new Error('id not found')
         }

@@ -3,6 +3,7 @@ import { ProductManagerDB } from '../services/productManagerDB.js'
 import { dbProducts } from '../models/products.mongoose.js'
 
 export const productsRouter = Router()
+const ProductManager = new ProductManagerDB();
 
 productsRouter.use(json())
 
@@ -68,7 +69,7 @@ productsRouter.get('/products', async (req, res) => {
 
 productsRouter.get('/products/:id', async (req, res) => {
     try {
-        const getProductById = await ProductManagerDB.findById(req.params.id)
+        const getProductById = await ProductManager.findById(req.params.id)
         res.json(getProductById)
     } catch (error) {
         res.status(404).json({
@@ -80,7 +81,7 @@ productsRouter.get('/products/:id', async (req, res) => {
 
 productsRouter.post('/products', async (req, res) => {
     try {
-        const createdProduct = await ProductManagerDB.create(req.body)
+        const createdProduct = await ProductManager.create(req.body)
         res.status(201).json(createdProduct)
     } catch (error) {
         res.status(400).json({
@@ -92,7 +93,7 @@ productsRouter.post('/products', async (req, res) => {
 
 productsRouter.put('/products/:id', async (req, res) => {
     try {
-        const updatedProduct = await ProductManagerDB.updateById(req.params.id, req.body)
+        const updatedProduct = await ProductManager.updateById(req.params.id, req.body)
         res.json(updatedProduct)
     } catch (error) {
         if (error.message === 'id not found') {
@@ -110,7 +111,7 @@ productsRouter.put('/products/:id', async (req, res) => {
 
 productsRouter.delete('/products/:id', async (req, res) => {
     try {
-        const deletedProduct = await ProductManagerDB.deleteById(req.params.id)
+        const deletedProduct = await ProductManager.deleteById(req.params.id)
         res.json(deletedProduct)
     } catch (error) {
         return res.status(404).json({
