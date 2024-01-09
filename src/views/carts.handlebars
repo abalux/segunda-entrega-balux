@@ -2,12 +2,12 @@
     <h1>Carrito</h1>
     <ul>
         <p>esta es una prueba</p>
-        {{#each carts}}
-        <li>{{_id}}</li>
-        {{/each}}
-        {{#each cart.Product}}
-        <li>{{this._id}}</li>
-        <li>{{this.Title}} - ${{this.Price}}</li>
+        {{#each cartFound.Products}}
+        <li>
+            <p>Id:{{this.product._id}}</p>
+            <p>Title:{{this.product.Title}}</p>
+            <p>Price:{{this.product.Price}}</p>
+        </li>
         {{/each}}
     </ul>
 </div>

@@ -10,10 +10,7 @@ const productSchema = new Schema({
     Stock: { type: Number, required: true },
     Category: {type: String, required: true},
 }, {
-    /*strict: 'throw',*/
     versionKey: false,
-    /*statics: {},
-    methods: {}*/
 })
 
 export const dbProducts = model('products', productSchema)
